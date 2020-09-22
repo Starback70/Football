@@ -4,10 +4,9 @@
  */
 package ru.izotov;
 
-public class Main {
+public class Game {
 
     public static void main(String[] args) {
-	// write your code here
-        new GameOfFootball().go();
+        new Football().start();
     }
 }
