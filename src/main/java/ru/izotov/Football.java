@@ -17,10 +17,10 @@ public class Football {
     static final int CELL = 50;
     static final int FIELD_HEIGHT = CELL * 15;
     static final int FIELD_WIDTH = CELL * 10;
-    static final int BALL = 20;
-    static final int BALL_RADIUS = BALL / 2;
-    static final int FIELD_CENTER_X = FIELD_WIDTH / 2 - BALL_RADIUS;
-    static final int FIELD_CENTER_Y = FIELD_HEIGHT / 2 - CELL / 2 - BALL_RADIUS;
+    static final int BALL_SIZE = 20;
+    static final int BALL_RADIUS = BALL_SIZE / 2;
+    static final int FIELD_CENTER_X = FIELD_WIDTH / 2;
+    static final int FIELD_CENTER_Y = FIELD_HEIGHT / 2 - CELL / 2;
     // Клавиши управления
     static final int LEFT = 37;
     static final int UP = 38;
@@ -40,13 +40,17 @@ public class Football {
     static final int GET_XY = 123;        // F12 - координаты мяча
 
     static final Color DEFAULT_COLOR = Color.black;
+    static final Color COLOR_FIELD = new Color(0, 220, 0);
+    static final Color COLOR_P_1 = new Color(0, 0, 220);
+    static final Color COLOR_P_2 = new Color(220, 0, 0);
 
-    boolean showGrid = false; // индикатор отображения сетки
+    int fieldLinesCount;
     int key = 0;  // нажатая клавиша
     int countColor = 2;  // счетчик смены цвета
     int changeColor = 0; // счетчик перехода хода
     int redPlayerGoals = 0;
     int bluePlayerGoals = 0;
+    boolean showGrid = false; // индикатор отображения сетки
 
     JFrame frame;
     JMenuBar menuBar;
@@ -61,7 +65,7 @@ public class Football {
     JLabel scoreLabel = new JLabel(score, SwingConstants.CENTER);
     JPanel panel = new JPanel();
 
-    Color color = Color.blue; // цвет мяча и линий (меняется при переходе хода, начинает синий игрок)
+    Color currentColor = COLOR_P_1; // цвет мяча и линий (меняется при переходе хода, начинает синий игрок)
 
     // Линии ворот
     Point gateRed1 = new Point(CELL * 4, CELL * 1);
@@ -83,7 +87,7 @@ public class Football {
         footballField = new FootballField();
         footballField.addPointToList();
         canvas = new Canvas();
-        canvas.setBackground(new Color(0, 220, 0));
+        canvas.setBackground(COLOR_FIELD);
         frame.getContentPane().add(BorderLayout.CENTER, canvas);
         scoreLabel.setFont(new Font("Arial", Font.TRUETYPE_FONT, 22));
         frame.getContentPane().add(BorderLayout.SOUTH, panel);
@@ -216,10 +220,10 @@ public class Football {
             lines.add(new Line(CELL * 2, CELL * 2, CELL * 3, CELL * 2, DEFAULT_COLOR));
             lines.add(new Line(CELL * 3, CELL * 2, CELL * 4, CELL * 2, DEFAULT_COLOR));
             // Верхние ворота - красный игрок
-            lines.add(new Line(CELL * 4, CELL * 2, CELL * 4, CELL * 1, Color.red));
-            lines.add(new Line(CELL * 4, CELL * 1, CELL * 5, CELL * 1, Color.red));
-            lines.add(new Line(CELL * 5, CELL * 1, CELL * 6, CELL * 1, Color.red));
-            lines.add(new Line(CELL * 6, CELL * 1, CELL * 6, CELL * 2, Color.red));
+            lines.add(new Line(CELL * 4, CELL * 2, CELL * 4, CELL * 1, COLOR_P_2));
+            lines.add(new Line(CELL * 4, CELL * 1, CELL * 5, CELL * 1, COLOR_P_2));
+            lines.add(new Line(CELL * 5, CELL * 1, CELL * 6, CELL * 1, COLOR_P_2));
+            lines.add(new Line(CELL * 6, CELL * 1, CELL * 6, CELL * 2, COLOR_P_2));
             // Кромка поля
             lines.add(new Line(CELL * 6, CELL * 2, CELL * 7, CELL * 2, DEFAULT_COLOR));
             lines.add(new Line(CELL * 7, CELL * 2, CELL * 8, CELL * 2, DEFAULT_COLOR));
@@ -239,10 +243,10 @@ public class Football {
             lines.add(new Line(CELL * 8, CELL * 12, CELL * 7, CELL * 12, DEFAULT_COLOR));
             lines.add(new Line(CELL * 7, CELL * 12, CELL * 6, CELL * 12, DEFAULT_COLOR));
             // Нижние ворота - синий игркок
-            lines.add(new Line(CELL * 6, CELL * 12, CELL * 6, CELL * 13, Color.blue));
-            lines.add(new Line(CELL * 6, CELL * 13, CELL * 5, CELL * 13, Color.blue));
-            lines.add(new Line(CELL * 5, CELL * 13, CELL * 4, CELL * 13, Color.blue));
-            lines.add(new Line(CELL * 4, CELL * 13, CELL * 4, CELL * 12, Color.blue));
+            lines.add(new Line(CELL * 6, CELL * 12, CELL * 6, CELL * 13, COLOR_P_1));
+            lines.add(new Line(CELL * 6, CELL * 13, CELL * 5, CELL * 13, COLOR_P_1));
+            lines.add(new Line(CELL * 5, CELL * 13, CELL * 4, CELL * 13, COLOR_P_1));
+            lines.add(new Line(CELL * 4, CELL * 13, CELL * 4, CELL * 12, COLOR_P_1));
             // Кромка поля
             lines.add(new Line(CELL * 4, CELL * 12, CELL * 3, CELL * 12, DEFAULT_COLOR));
             lines.add(new Line(CELL * 3, CELL * 12, CELL * 2, CELL * 12, DEFAULT_COLOR));
@@ -267,8 +271,9 @@ public class Football {
             lines.add(new Line(CELL * 7, CELL * 7, CELL * 8, CELL * 7, DEFAULT_COLOR));
             lines.add(new Line(CELL * 8, CELL * 7, CELL * 9, CELL * 7, DEFAULT_COLOR));
             // Начальная линия нулевой длины (центр поля)
-            lines.add(new Line((FIELD_CENTER_X + BALL_RADIUS), (FIELD_CENTER_Y + BALL_RADIUS),
-                    (FIELD_CENTER_X + BALL_RADIUS), (FIELD_CENTER_Y + BALL_RADIUS), DEFAULT_COLOR));
+            lines.add(new Line((FIELD_CENTER_X), (FIELD_CENTER_Y),
+                    (FIELD_CENTER_X), (FIELD_CENTER_Y), DEFAULT_COLOR));
+            fieldLinesCount = lines.size(); // отсчека точек на поле
         }
 
         void addPointToList() {
@@ -328,7 +333,7 @@ public class Football {
             points.add(new Point(CELL * 7, CELL * 7));
             points.add(new Point(CELL * 8, CELL * 7));
             // Стартовая точка мяча (центр поля)
-            points.add(new Point(FIELD_CENTER_X + BALL_RADIUS, FIELD_CENTER_Y + BALL_RADIUS));
+            points.add(new Point(FIELD_CENTER_X, FIELD_CENTER_Y));
         }
 
     }
@@ -338,16 +343,14 @@ public class Football {
      * Мяч
      */
     class Ball {
-        private static final int LEFT_BORDER = CELL - BALL_RADIUS;
-        private static final int RIGHT_BORDER = CELL * 9 - BALL_RADIUS;
-        private static final int TOP_BORDER = CELL * 2 - BALL_RADIUS;
-        private static final int BOTTOM_BORDER = CELL * 12 - BALL_RADIUS;
-
-        private static final int LEFT_BORDER_GATE = CELL * 4 - BALL_RADIUS;
-        private static final int RIGHT_BORDER_GATE = CELL * 6 - BALL_RADIUS;
-        private static final int TOP_BORDER_GATE = CELL - BALL_RADIUS;
-        private static final int BOTTOM_BORDER_GATE = CELL * 13 - BALL_RADIUS;
-
+        private static final int LEFT_BORDER = CELL;
+        private static final int RIGHT_BORDER = CELL * 9;
+        private static final int TOP_BORDER = CELL * 2;
+        private static final int BOTTOM_BORDER = CELL * 12;
+        private static final int LEFT_BORDER_GATE = CELL * 4;
+        private static final int RIGHT_BORDER_GATE = CELL * 6;
+        private static final int TOP_BORDER_GATE = CELL;
+        private static final int BOTTOM_BORDER_GATE = CELL * 13;
         private int x;
         private int y;
 
@@ -370,22 +373,22 @@ public class Football {
 
         void drawBall(Graphics g, Color color) {
             g.setColor(color);
-            g.fillOval(x, y, BALL, BALL);
+            g.fillOval(x - BALL_RADIUS, y - BALL_RADIUS, BALL_SIZE, BALL_SIZE);
         }
 
         void move() {
-            boolean xPoint = (x == CELL * 4 - BALL_RADIUS && y == CELL - BALL_RADIUS)
-                    || (x == CELL * 6 - BALL_RADIUS && y == CELL - BALL_RADIUS)
-                    || (x == CELL * 4 - BALL_RADIUS && y == CELL * 13 - BALL_RADIUS)
-                    || (x == CELL * 6 - BALL_RADIUS && y == CELL * 13 - BALL_RADIUS);
+            boolean xPoint = (x == CELL * 4 && y == CELL)
+                    || (x == CELL * 6 && y == CELL)
+                    || (x == CELL * 4 && y == CELL * 13)
+                    || (x == CELL * 6 && y == CELL * 13);
 //            boolean rightGateBorder = ;
 //            boolean leftGateBorder;
-            boolean borderPoint = (x == CELL * 4 - BALL_RADIUS && y == CELL * 2 - BALL_RADIUS)
-                    || (x == CELL * 5 - BALL_RADIUS && y == CELL * 2 - BALL_RADIUS)
-                    || (x == CELL * 6 - BALL_RADIUS && y == CELL * 2 - BALL_RADIUS)
-                    || (x == CELL * 4 - BALL_RADIUS && y == CELL * 12 - BALL_RADIUS)
-                    || (x == CELL * 5 - BALL_RADIUS && y == CELL * 12 - BALL_RADIUS)
-                    || (x == CELL * 6 - BALL_RADIUS && y == CELL * 12 - BALL_RADIUS);
+            boolean borderPoint = (x == CELL * 4 && y == CELL * 2)
+                    || (x == CELL * 5 && y == CELL * 2)
+                    || (x == CELL * 6 && y == CELL * 2)
+                    || (x == CELL * 4 && y == CELL * 12)
+                    || (x == CELL * 5 && y == CELL * 12)
+                    || (x == CELL * 6 && y == CELL * 12);
             if (key == LEFT && (x > LEFT_BORDER && !xPoint)) {
                 x = x - CELL;
             }
@@ -407,14 +410,14 @@ public class Football {
             if (i == 1) {
 //                JOptionPane.showMessageDialog(frame, "ГОЛ в ворота красного игрока", "GOAL", 1);
                 JOptionPane.showMessageDialog(frame, "", "GOAL", INFORMATION_MESSAGE);
-                color = Color.red; // Красный игрок разводит мяч
+                currentColor = COLOR_P_2; // Красный игрок разводит мяч
                 bluePlayerGoals++;
                 score = "   синий  " + bluePlayerGoals + " : " + redPlayerGoals + "  красный";
             }
             if (i == 2) {
 //                JOptionPane.showMessageDialog(frame, "ГОЛ в ворота синего игрока");
                 JOptionPane.showMessageDialog(frame, "", "GOAL", INFORMATION_MESSAGE);
-                color = Color.blue; //Синий огрок разводит мяч
+                currentColor = COLOR_P_1; //Синий огрок разводит мяч
                 redPlayerGoals++;
                 score = "   синий  " + bluePlayerGoals + " : " + redPlayerGoals + "  красный";
             }
@@ -423,13 +426,10 @@ public class Football {
 
         void changeColor() {
             changeColor++;
-            if (changeColor % 2 == 0) color = Color.blue;
-            if (changeColor % 2 == 1) color = Color.red;
+            if (changeColor % 2 == 0) currentColor = COLOR_P_1;
+            if (changeColor % 2 == 1) currentColor = COLOR_P_2;
         }
 
-        public Point getPoint() {
-            return new Point(ball.getX(), ball.getY());
-        }
     }
 
     /**
@@ -529,8 +529,33 @@ public class Football {
         }
 
         void setLine() {
+            // Убираем тупикове ходы
+            lines.add(new Line(2 * CELL, 3 * CELL, 1 * CELL, 2 * CELL, COLOR_FIELD));
+            lines.add(new Line(2 * CELL, 11 * CELL, 1 * CELL, 12 * CELL, COLOR_FIELD));
+            lines.add(new Line(8 * CELL, 3 * CELL, 9 * CELL, 2 * CELL, COLOR_FIELD));
+            lines.add(new Line(8 * CELL, 11 * CELL, 9 * CELL, 12 * CELL, COLOR_FIELD));
+            // Добавлем линии поля
             footballField.addLineToList();
         }
+
+        /*        boolean isNotAngle(int x2, int y2) {
+                    final int LT_X = CELL;
+                    final int LT_Y = 2 * CELL;
+                    final int RT_X = 9 * CELL;
+                    final int RT_Y = 2 * CELL;
+                    final int RB_X = 9 * CELL;
+                    final int RB_Y = 12 * CELL;
+                    final int LB_X = CELL;
+                    final int LB_Y = 12 * CELL;
+                    if ((x2 == LT_X && y2 == LT_Y)
+                            || (x2 == LB_X && y2 == LB_Y)
+                            || (x2 == RB_X && y2 == RB_Y)
+                            || (x2 == RT_X && y2 == RT_Y)) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }*/
 
         // Отрисовка линий на поле.
         void drawLines(Graphics g) {
@@ -542,7 +567,7 @@ public class Football {
                 g2.setColor(l.getColor());
                 g2.drawLine(l.getX1(), l.getY1(), l.getX2(), l.getY2());
                 // Не рисуем точки на линиях поля
-                if (i > 49) {
+                if (i >= fieldLinesCount) {
                     new Point(l.getX2(), l.getY2()).drawPoints(g);
                 }
             }
@@ -563,32 +588,30 @@ public class Football {
      */
     class Bot {
         void doShot() {
-            // Возможные удары
             List<Line> possibleShots = new ArrayList<>();
-            Point ballLocation = ball.getPoint();
-            int x = ballLocation.getX() + BALL_RADIUS;
-            int y = ballLocation.getY() + BALL_RADIUS;
+            int x = ball.getX();
+            int y = ball.getY();
             int x2 = x - CELL;
             int x3 = x + CELL;
             int y2 = y - CELL;
             int y3 = y + CELL;
-
+            // Возможные удары
             if (x2 >= CELL && y3 <= 12 * CELL)
-                possibleShots.add(new Line(x, y, x2, y3, Color.blue));
+                possibleShots.add(new Line(x, y, x2, y3, COLOR_P_1));
             if (x3 <= 9 * CELL && y3 <= 12 * CELL)
-                possibleShots.add(new Line(x, y, x3, y3, Color.blue));
+                possibleShots.add(new Line(x, y, x3, y3, COLOR_P_1));
             if (x3 <= 9 * CELL && y2 >= 2 * CELL)
-                possibleShots.add(new Line(x, y, x3, y2, Color.blue));
+                possibleShots.add(new Line(x, y, x3, y2, COLOR_P_1));
             if (x2 >= CELL && y2 >= 2 * CELL)
-                possibleShots.add(new Line(x, y, x2, y2, Color.blue));
+                possibleShots.add(new Line(x, y, x2, y2, COLOR_P_1));
             if (x2 >= CELL)
-                possibleShots.add(new Line(x, y, x2, y, Color.blue));
+                possibleShots.add(new Line(x, y, x2, y, COLOR_P_1));
             if (x3 <= 9 * CELL)
-                possibleShots.add(new Line(x, y, x3, y, Color.blue));
+                possibleShots.add(new Line(x, y, x3, y, COLOR_P_1));
             if (y2 >= 2 * CELL)
-                possibleShots.add(new Line(x, y, x, y2, Color.blue));
+                possibleShots.add(new Line(x, y, x, y2, COLOR_P_1));
             if (y3 <= 12 * CELL)
-                possibleShots.add(new Line(x, y, x, y3, Color.blue));
+                possibleShots.add(new Line(x, y, x, y3, COLOR_P_1));
 
             System.out.println("possibleShots: " + possibleShots.size());
 //            onScreenLines(possibleShots);
@@ -613,11 +636,25 @@ public class Football {
             Line shot = allowedShots.get(new Random().nextInt(allowedShots.size()));
 //            Line shot = allowedShots.get(0);
             lines.add(shot);
-            ball.setXY(shot.getX2() - BALL_RADIUS, shot.getY2() - BALL_RADIUS);
+            ball.setXY(shot.getX2(), shot.getY2());
             canvas.repaint();
         }
-    }
 
+/*        boolean isNotAngle(int x2, int x3, int y2, int y3) {
+            final int LT_X = CELL;
+            final int LT_Y = 2 * CELL;
+            final int RT_X = 9 * CELL;
+            final int RT_Y = 2 * CELL;
+            final int RB_X = 9 * CELL;
+            final int RB_Y = 12 * CELL;
+            final int LB_X = CELL;
+            final int LB_Y = 12 * CELL;
+
+            if (x2 == LT_X || x2 == LB_X || x2) {
+                return true;
+            }
+        }*/
+    }
 
 
     /**
@@ -629,7 +666,7 @@ public class Football {
             super.paint(g);
             int x1, x2, y1, y2;
             countColor = 0; // счетчик для смены цвета при переходе хода.
-            ball.drawBall(g, color);
+            ball.drawBall(g, currentColor);
             scoreLabel.setText(score);
             line.drawLines(g);
             // Управление горячими клавишами
@@ -639,18 +676,18 @@ public class Football {
             if (key == RESTART_GAME) restartGame(); // перезапуск игры
             if (key == CLEAR_FIELD) clearField();   // очистка поля
             if (key == RESET_SCORE) resetScore();   // сброс счета
-            if (key == GET_XY) System.out.println("x= " + ball.getX() + " y= " + ball.getY());
+            if (key == GET_XY) System.out.println(ball.getX()/CELL + "*CELL " + ball.getY()/CELL + "*CELL");
             if (key == GET_LINES) onScreenLines(); // показать существующие точки (кроме поля)
             if (key == GET_POINTS) onScreenPoints(); // показать существующие точки (кроме поля)
             // Действия при выполнении удара (нажатии "space")
             if (key == SHOT) {
                 x1 = lines.get(lines.size() - 1).getX2();
                 y1 = lines.get(lines.size() - 1).getY2();
-                x2 = ball.getX() + BALL_RADIUS;
-                y2 = ball.getY() + BALL_RADIUS;
+                x2 = ball.getX();
+                y2 = ball.getY();
                 // Проверка точек в массиве. Если точка существует на поле, можно и нужно сделать ещё удар.
                 for (Point p : points) {
-                    if (((ball.getX() + BALL_RADIUS) == p.getX()) && ((ball.getY() + BALL_RADIUS) == p.getY())) {
+                    if (((ball.getX()) == p.getX()) && ((ball.getY()) == p.getY())) {
                         countColor++; // счетчик для перехода хода со сменой цвета
                     }
                 }
@@ -659,10 +696,10 @@ public class Football {
                         || (Math.abs(x1 - x2) == 0 && (Math.abs(y1 - y2) == CELL))) {
                     if (!checkLine(x1, x2, y1, y2)) {
                         point.addNewPoint(x2, y2); // в случае возможности удара, доавляем новую точку
-                        line.addNewLine(x1, y1, x2, y2, color); // добавляем новую линию
+                        line.addNewLine(x1, y1, x2, y2, currentColor); // добавляем новую линию
                         if (countColor == 0) {
                             ball.changeColor(); // меняем цвет при переходе хода
-                            ball.drawBall(g, color); // рисуем мяч нового цвета
+                            ball.drawBall(g, currentColor); // рисуем мяч нового цвета
                         }
                     } else {
                         System.out.println("Повторный ход недопустим");
